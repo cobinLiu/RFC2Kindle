@@ -11,7 +11,7 @@ Anand:
 TODO: Rewrite to support Windows too
 """
 
-import sys, logging, getopt, os
+import sys, logging, getopt, os, subprocess
 import re
 
 default_font = '/usr/share/cups/fonts/Courier'
@@ -52,7 +52,13 @@ def create_image(picture_me):
     '''
 
     # Escape sequence with single quote has trouble with convert. So replacing with double quotes
-    os.system('convert -font %s label:"%s" %s' %  (font, picture_me.replace('"', '\"'), img_file_name))
+    try:
+        label = 'label:"%s"' % picture_me.replace('"', '\"')
+        subprocess.call(['convert', '-font', font, label, img_file_name])
+    except OSError as e:
+        sys.exit("convert command not found, ImageMagick is not installed.")
+
+
     return img_file_name
 
 def is_image_part(line):
